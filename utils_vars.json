@@ -1,0 +1,19 @@
+{
+  "buttons_vals" : [{"button_id": "not_relevant", "value": 0, "label": "Not Relevant"},
+ {"button_id": "content_need_category",
+  "value": 1,
+  "label": "Content Need Category"},
+ {"button_id": "family_involvement",
+  "value": 2,
+  "label": "Family Involvement"},
+ {"button_id": "statistics", "value": 3, "label": "Statistics"},
+ {"button_id": "measuring_tools", "value": 4, "label": "Measuring Tools"},
+ {"button_id": "wellbeing", "value": 5, "label": "Wellbeing"},
+ {"button_id": "complementary_treatment",
+  "value": 6,
+  "label": "Complementary Treatment"},
+ {"button_id": "support_groups", "value": 7, "label": "Support Groups"},
+ {"button_id": "expert_forum", "value": 8, "label": "Expert Forum"},
+ {"button_id": "patients_rights", "value": 9, "label": "Patients Rights"},
+ {"button_id": "young_in_spirit", "value": 10, "label": "Young In Spirit"}]
+}

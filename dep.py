@@ -25,18 +25,13 @@ app.config['SECRET_KEY'] = SECRET_KEY
 google_custom_search_engine_id = "12613bf57ff548036"
 google_custom_search_api_key = "AIzaSyCGwodHXdMM-Q2cNe_cw66W-w9Go4DgB9g"
 csrf = CSRFProtect(app)
-possible_classes = ['-','Good', 'Not Good', '-']
-
-results = fetch_json("test.json")[:3]
-
-
 
 
 @app.route('/classify', methods=('GET', 'POST'))
 def classify():
     params = fetch_json("results.json")
     request_method = request.method
-    buttons_list = fetch_json("util_vars.json")["buttons_vals"]
+    buttons_list = fetch_json("utils_vars.json")["buttons_vals"]
     # If classification is submitted
     if request_method == 'POST':
         classifications = {k: v for k, v in request.form.items()}
@@ -104,7 +99,7 @@ def home():
                            search_result_message=search_result_message,
                            num_results=num_results, search_start=search_start,
                            search_time=search_time, results=results,
-                           page_size=page_size, possible_classes= possible_classes)
+                           page_size=page_size)
 
 
 
