@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Custom Search Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+<h1> Classifier </h1>
+<span style="font-size:18px;"> Classify these Articles as One of the Following </span>
+<form method="POST" action="/classify">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <br><br>
+    {% for res in results %}
+        {% set results_loop = loop %}
+        <container>
+
+        <H3>Article {{ results_loop.index }} </H3>
+        <BLOCKQUOTE>
+            <td class="gsc-result">
+            <p  class="gsc-title">
+                <a href="{{res.get('link')}}" target="_blank">{{res.get('htmlTitle') | safe}}</a>
+            </p>
+
+            <p class="gsc-snippet">
+                {{res.get('htmlSnippet') | safe}}
+            </p>
+            <p class="gsc-url-bottom">
+                {{res.get('htmlFormattedUrl') | safe}}
+            </p>
+        </td>
+        </BLOCKQUOTE><br>
+    <p style="font-size:18px;"> Select an Option for Article {{ results_loop.index }}:</p>
+        {% for btn in buttons_list %}
+        <div>
+          <input type="radio" id={{ btn.button_id }} name={{ "options_%d"|format(results_loop.index0) }} value={{ btn.value }}>
+          <label for={{ btn.button_id }}>{{ btn.label }} </label>
+        </div>
+            {% endfor %}
+    </container>
+        <br><br>
+    <container>
+
+    {% endfor %}
+        <br><br>
+    <br><br><input type="submit">
+    <div class="show-data" >
+    </div>
+    </form>
+<div class="show-data" >
+</div>
+</form>
+</body>

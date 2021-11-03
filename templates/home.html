@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Custom Search Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-inverse" role="navigation">
+    <div class="container-fluid">
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h1>Google Custom Search Demo</h1>
+    <br>
+    <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+            <input type="text" class="form-control" name="searchString">
+        </div>
+        <button type="submit" class="btn btn-default">Search</button>
+    </form>
+
+    {% if search_string != '' %}
+    <div class="gsc-results">
+
+        <p class="gsc-search-result-info" data-webSearchResultSetSize="5">
+            {{search_result_message}}
+        </p>
+
+        {% if num_results > 0 %}
+        <br><br>
+        <form method="POST" name="ClassifierForm" action="/home">
+        {% for result in results %}
+            <tr>
+
+                <td class="gsc-result">
+                     <br>Classified As :  <select name="classification">
+                    {% for cls in possible_classes %}
+                    <option value= "{{cls}}" SELECTED>{{cls}}</option>"
+                    {% endfor %}</select>
+                    <p class="gsc-title">
+                        <a href="{{result.get('link')}}">{{result.get('htmlTitle') | safe}}</a>
+                    </p>
+                    {% if 'fileFormat' in result %}
+                    <p>
+                        <span class="gsc-file-format-label">File Format:</span>
+                        <span class="gsc-file-format">{{result.get('fileFormat')}}</span>
+                    </p>
+                    {% endif %}
+                    <p class="gsc-snippet">
+                        {{result.get('htmlSnippet') | safe}}
+                    </p>
+                    <p class="gsc-url-bottom">
+                        {{result.get('htmlFormattedUrl') | safe}}
+                    </p>
+                </td>
+                <br>
+            </tr>
+        {% endfor %}
+            <input type="submit">
+            </form>
+        {% endif %}
+
+        {% if num_results > page_size %}
+        <div class="gsc-pagination-container">
+            {% for i in range(1, [100, num_results]|sort|first, page_size) %}
+            {% if search_start == (i | string) %}
+            <div class="gsc-pagination-link">{{loop.index}}</div>
+            {% else %}
+            <div class="gsc-pagination-link"><a href="/?searchString={{search_string}}&searchStart={{i}}">{{loop.index}}</a></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>
