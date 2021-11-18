@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, g, session, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for
 from flask_wtf import CSRFProtect
 from dbconnect import DbBuild
 from utils import *
@@ -13,16 +13,11 @@ results_search_lim = 50
 app = Flask(__name__)
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SESSION_COOKIE_SECURE'] = False
 google_custom_search_engine_id = "12613bf57ff548036"
 google_custom_search_api_key = "AIzaSyCGwodHXdMM-Q2cNe_cw66W-w9Go4DgB9g"
 csrf = CSRFProtect(app)
 
-
-@app.before_request
-def fix_missing_csrf_token():
-    if app.config['WTF_CSRF_FIELD_NAME'] not in session:
-        if app.config['WTF_CSRF_FIELD_NAME'] in g:
-            g.pop(app.config['WTF_CSRF_FIELD_NAME'])
 
 @app.route('/classify', methods=('GET', 'POST'))
 def classify():
