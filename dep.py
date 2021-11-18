@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, session, render_template, request, redirect, url_for
+from flask import Flask, g, session, render_template, request, redirect, url_for
 from flask_wtf import CSRFProtect
 from dbconnect import DbBuild
 from utils import *
@@ -18,6 +18,12 @@ google_custom_search_api_key = "AIzaSyCGwodHXdMM-Q2cNe_cw66W-w9Go4DgB9g"
 csrf = CSRFProtect(app)
 
 
+@app.before_request
+def fix_missing_csrf_token():
+    if app.config['WTF_CSRF_FIELD_NAME'] not in session:
+        if app.config['WTF_CSRF_FIELD_NAME'] in g:
+            g.pop(app.config['WTF_CSRF_FIELD_NAME'])
+
 @app.route('/classify', methods=('GET', 'POST'))
 def classify():
     db = DbBuild()
@@ -29,9 +35,8 @@ def classify():
     if request_method == 'POST':
         classifications = {k: v for k, v in request.form.items()}
         _ = db.write_lines(classifications, search_string)
+        print("*** Lines written to db ***")
         return render_template('submission.html')
-
-
 
     return render_template('basicdisplay.html',
                            results=params,
