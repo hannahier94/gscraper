@@ -6,18 +6,11 @@ from flask_wtf import CSRFProtect
 import json
 from datetime import datetime
 import os
+import psycopg2
 
+DATABASE_URL = os.environ['DATABASE_URL']
 
-
-def fetch_json(inputfile, folder=None):
-    """ Opens and loads JSONs """
-    if not folder:
-        folder = ""
-    filepath = folder + inputfile
-    with open(filepath) as f:
-        data = json.load(f)
-
-    return data
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 app = Flask(__name__)
 SECRET_KEY = os.urandom(32)
@@ -29,12 +22,15 @@ csrf = CSRFProtect(app)
 
 @app.route('/classify', methods=('GET', 'POST'))
 def classify():
+    db = DbBuild()
+    search_string = session.get('search_string', None)
     params = fetch_json("results.json")
     request_method = request.method
     buttons_list = fetch_json("utils_vars.json")["buttons_vals"]
     # If classification is submitted
     if request_method == 'POST':
         classifications = {k: v for k, v in request.form.items()}
+        _ = db.write_lines(classifications, search_string)
         return render_template('submission.html')
 
 
@@ -43,17 +39,22 @@ def classify():
                            results=params,
                            buttons_list=buttons_list)
 
-def write_json_file(data, filename="results.json"):
-    with open(filename, 'w+') as outfile:
-        json.dump(data, outfile)
 
+def filter_results(results):
+    db = DbBuild()
+    return db.check_urls(results, limit=results_display_lim)
+
+def fetch_start_string(search_string):
+    db = DbBuild()
+    return db.check_previous_searches(search_string)
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
     # Get search request param
     search_string = request.args.get('searchString', '')
-    search_start = request.args.get('searchStart', '1')
-    page_size = 10
+    session['search_string'] = search_string
+    search_start = fetch_start_string(search_string)#request.args.get('searchStart', '1')
+    page_size = 70
 
     if search_string == '':
         return render_template('home.html', search_string='',
@@ -77,8 +78,9 @@ def home():
     data = response.json()
 
     search_time = datetime.now() #data.get('searchInformation').get('formattedSearchTime')
-    results = data.get('items')[:5]
-    num_results = len(results) #int(data.get('searchInformation').get('totalResults'))
+    initial_results = data.get('items')[:results_search_lim]
+    results = filter_results(initial_results)
+    num_results = len(results)
     search_result_message = 'No results found ({} seconds)'.format(
         search_time) if num_results == 0 else 'About {} results ({} seconds)'.format(
         num_results, search_time)
@@ -88,10 +90,6 @@ def home():
     if search_string != '' and num_results > 0:
         write_json_file(results)
         print('Posting....')
-        # Make a dictionary of the parameters from the form dictionary
-        # params = {k: v for k, v in request.form.items()}
-        # print('\n\n', params)
-        # Send parameters to the new route to create the simulation
         return redirect(url_for("classify"))
 
     # Before client inputs parameters, use this template with blank parameters for them
@@ -100,9 +98,6 @@ def home():
                            num_results=num_results, search_start=search_start,
                            search_time=search_time, results=results,
                            page_size=page_size)
-
-
-
 
 if __name__ == '__main__':
 
