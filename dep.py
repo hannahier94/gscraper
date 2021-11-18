@@ -1,16 +1,14 @@
-
 import requests
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for
 from flask_wtf import CSRFProtect
+from dbconnect import DbBuild
+from utils import *
 
-import json
 from datetime import datetime
 import os
-import psycopg2
 
-DATABASE_URL = os.environ['DATABASE_URL']
-
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+results_display_lim = 10
+results_search_lim = 50
 
 app = Flask(__name__)
 SECRET_KEY = os.urandom(32)
