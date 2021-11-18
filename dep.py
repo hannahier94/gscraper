@@ -101,6 +101,6 @@ if __name__ == '__main__':
 
     port = os.environ.get('PORT')
     if port:
-        app.run(host='0.0.0.0', port=int(port))
+        app.run(host='0.0.0.0', port=int(port) ,debug=True)
     else:
-        app.run()
+        app.run(debug=True)
